@@ -10,7 +10,6 @@
     Custom Settings:
 
     - Any line commented with "This is editable"
-    - module.Init() Values
 
     Side Notes:
 
@@ -23,11 +22,11 @@
 local module = {}
 
 function module.Init()
-    module.WalkSpeed = 16 -- This is editable
+	module.WalkSpeed = game.StarterPlayer.CharacterWalkSpeed -- This is editable
     module.LagBacks = 0
     module.Enabled = true
     module.CheckDelay = 0.1
-    module.JumpHeight = 7.2 -- This is editable
+    module.JumpHeight = game.StarterPlayer.CharacterJumpHeight -- This is editable
     module.LastPos = Vector3.new(0, 0, 0)
 end
 
@@ -37,7 +36,9 @@ function CheckFalling(Player)
     local Humanoid = Character.Humanoid
 
     if HRP.AssemblyLinearVelocity.Y > 0 and Humanoid:GetStateEnabled(Enum.HumanoidStateType.Freefall) then
-        return "Falling"
+		return "Falling"
+	elseif HRP.AssemblyLinearVelocity.Y > 0 and Humanoid:GetStateEnabled(Enum.HumanoidStateType.Jumping) then
+		return "Falling"
     else
         return false
     end
@@ -90,7 +91,7 @@ function LagBack(Player, Position)
     task.wait(module.CheckDelay)
     module.Enabled = true
     module.LagBacks = module.LagBacks + 1
-    --print(Player.Name, "| LagBacks:", module.LagBacks) -- Printing for Debug
+    print(Player.Name, "| LagBacks:", module.LagBacks) -- Printing for Debug
 end
 
 function module:FetchLagBacks() -- This is optional
@@ -100,7 +101,7 @@ end
 game.Players.PlayerAdded:Connect(function(Player)
     Player.CharacterAdded:Connect(function(Character)
         while task.wait(module.CheckDelay) do
-            if not Character:FindFirstChild("HumanoidRootPart") then return end
+			if not Character:FindFirstChild("HumanoidRootPart") or Character.Humanoid.Health == 0 then return end
 
             module.LastPos = Character.HumanoidRootPart.Position
             task.wait(module.CheckDelay)
@@ -110,12 +111,12 @@ game.Players.PlayerAdded:Connect(function(Player)
 
             if module.Enabled == false then return end
 
-            if XZ_Mag > (Character.Humanoid.WalkSpeed * module.CheckDelay) + 1 and CheckFalling(Player) == false then
+			if XZ_Mag > (Character.Humanoid.WalkSpeed * 0.2) and CheckFalling(Player) == false then -- Tweak the Magnitude math if False Positives Occur
                 LagBack(Player, module.LastPos)
             end
 
-            if Y_Mag > (Character.Humanoid.JumpHeight * module.CheckDelay) + 4 and CheckFalling(Player) == "Falling" then
-                LagBack(Player, module.LastPos)
+            if Y_Mag > (Character.Humanoid.JumpHeight * 0.7)  and CheckFalling(Player) == "Falling" then -- Tweak the Magnitude math if False Positives Occur
+				LagBack(Player, module.LastPos)
             end
         end
     end)
