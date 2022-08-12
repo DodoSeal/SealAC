@@ -1,2 +1,2 @@
-local Anticheat = require(game.ServerScriptService.Server.Anticheat)
-Anticheat.Init()
+local SealAC = require(game.ServerScriptService.Server.SealAC)
+SealAC.Init()
