@@ -4,7 +4,7 @@
 
 1. Put the Module in `ServerScriptService`
 2. Require the Module in a Server Script
-3. Call `the module.Init()` function
+3. Call the `module.Init()` function
 
 ## Custom Settings:
 
